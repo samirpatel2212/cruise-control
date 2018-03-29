@@ -9,7 +9,7 @@ import java.util.Map.Entry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 
-import com.aimsio.repository.SignalService;
+import com.aimsio.service.SignalService;
 import com.vaadin.addon.charts.Chart;
 import com.vaadin.addon.charts.model.AxisType;
 import com.vaadin.addon.charts.model.ChartType;
@@ -90,6 +90,10 @@ public class DashboardUI extends UI {
 		setContent(items);
 	}
 
+	/**
+	 * Update chart based on user's selection.
+	 * 
+	 */
 	protected void updateChart() {
 		Configuration configuration = timeline.getConfiguration();
 		if (!StringUtils.isEmpty(assetUNComboBox.getValue())) {
@@ -105,11 +109,17 @@ public class DashboardUI extends UI {
 		timeline.drawChart(configuration);
 	}
 
+	/**
+	 * Retrieve signal data for selected assetUN and status, and update the chart
+	 * with new data.
+	 * 
+	 * @param configuration
+	 */
 	private void populateChartWithAssetUNAndStatus(Configuration configuration) {
 		// If status and assetUN is selected on UI, fetch data from DB and populate
 		// chart
-		Map<String, Number> signalCountMap = signalService.getSignalsForGivenAssetUNAndStatus(
-				statusComboBox.getValue(), assetUNComboBox.getValue());
+		Map<String, Number> signalCountMap = signalService.getSignalsForGivenAssetUNAndStatus(statusComboBox.getValue(),
+				assetUNComboBox.getValue());
 		removeListSeries();
 		configuration.addSeries(new ListSeries(statusComboBox.getValue(), signalCountMap.values()));
 
@@ -119,12 +129,16 @@ public class DashboardUI extends UI {
 		}
 	}
 
+	/**
+	 * Retrieve signal data from database for selected assetUN and update the chart
+	 * with new data.
+	 * 
+	 * @param configuration
+	 */
 	private void populateChartWithGivenAssetUN(Configuration configuration) {
 		// Load data for selected assetUN with all possible statuses
-		Collection<String> retrieveStatusByAssetUN = signalService
-				.retrieveStatusByAssetUN(assetUNComboBox.getValue());
-		statusComboBox
-				.setItems(assetUNComboBox.getValue() == null ? new ArrayList<>() : retrieveStatusByAssetUN);
+		Collection<String> retrieveStatusByAssetUN = signalService.retrieveStatusByAssetUN(assetUNComboBox.getValue());
+		statusComboBox.setItems(assetUNComboBox.getValue() == null ? new ArrayList<>() : retrieveStatusByAssetUN);
 		Map<String, Map<String, Number>> signalCountMap = signalService
 				.getSignalsForGivenAssetUN(assetUNComboBox.getValue());
 		removeListSeries();
@@ -138,17 +152,24 @@ public class DashboardUI extends UI {
 	}
 
 	private void handleStatusComboBox(String value) {
+		// refresh chart with new data
 		updateChart();
 	}
 
 	private void handleAssetUNComboBox(String value) {
+		// remove the current list series
 		removeListSeries();
+
+		// clear status combo
 		statusComboBox.clear();
 		statusComboBox.setItems(new ArrayList<String>());
+
+		// refresh chart with new data
 		updateChart();
 	}
 
 	private void removeListSeries() {
+		/// remove all list series from chart
 		timeline.getConfiguration().setSeries(new ArrayList<Series>());
 	}
 }
