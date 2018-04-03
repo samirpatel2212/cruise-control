@@ -1,3 +1,3 @@
 # cruise-control
-
-: * chart
+Sample
+* chart
