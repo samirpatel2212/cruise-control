@@ -1,0 +1,3 @@
+# cruise-control
+
+: * chart
