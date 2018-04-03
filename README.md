@@ -1,3 +1,4 @@
 # cruise-control
 
 * chart
+* vaadin
